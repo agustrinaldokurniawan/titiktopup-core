@@ -1,0 +1,35 @@
+package main
+
+import (
+	"titiktopup-core/internal/clients"
+	"titiktopup-core/internal/config"
+	"titiktopup-core/internal/handler"
+	"titiktopup-core/internal/repository"
+	"titiktopup-core/internal/server"
+	"titiktopup-core/pb"
+
+	"google.golang.org/grpc"
+)
+
+func main() {
+	db := config.InitDB()
+
+	allClients := clients.InitClients()
+	defer allClients.CloseAll()
+
+	repo := repository.NewTransactionRepository(db)
+	topupHandler := handler.NewTopupHandler(repo)
+	userHandler := handler.NewUserHandler()
+
+	grpcRegs := []server.GRPCRegistrar{
+		func(s grpc.ServiceRegistrar) { pb.RegisterTopupServiceServer(s, topupHandler) },
+		func(s grpc.ServiceRegistrar) { pb.RegisterUserServiceServer(s, userHandler) },
+	}
+
+	httpRegs := []server.HTTPRegistrar{
+		pb.RegisterTopupServiceHandlerFromEndpoint,
+		pb.RegisterUserServiceHandlerFromEndpoint,
+	}
+
+	server.RunServers(grpcRegs, httpRegs)
+}

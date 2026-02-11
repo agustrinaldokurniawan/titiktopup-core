@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package titiktopup;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "TitikTopup Core API";
+    version: "1.0.0";
+    description: "Core backend service for TitikTopup platform.";
+  };
+  schemes: HTTP;
+};
+
+option go_package = "titiktopup-core/pb";
+
+service TopupService {
+    rpc GetMenu (google.protobuf.Empty) returns (MenuResponse) {
+        option (google.api.http) = {
+            get: "/menu"
+        };
+    }
+
+    rpc Checkout (CheckoutRequest) returns (TransactionResponse) {
+        option (google.api.http) = {
+            post: "/checkout"
+            body: "*"
+        };
+    }
+}
+
+message Product {
+    uint32 id = 1;
+    string sku = 2;
+    string name = 3;
+    double price_sell = 4;
+}
+
+message Category {
+    uint32 id = 1;
+    string name = 2;
+    string slug = 3;
+    repeated Product products = 4;
+}
+
+message MenuResponse {
+    repeated Category categories = 1;
+}
+
+message CheckoutRequest {
+    string user_id_game = 1;
+    string zone_id_game = 2;
+    uint32 product_id = 3;
+    string payment_method = 4;
+}
+
+message TransactionResponse {
+    string id = 1;
+    string status = 2;
+    double total_price = 3;
+}

@@ -1,0 +1,8 @@
+{
+    "info": {
+      "title": "TitikTopup Core API",
+      "version": "1.0.0",
+      "description": "Core backend service for TitikTopup game voucher platform."
+    },
+    "schemes": ["HTTP"]
+  }

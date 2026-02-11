@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package titiktopup;
+option go_package = "titiktopup-core/pb";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+service UserService {
+  rpc GetProfile(GetProfileRequest) returns (UserResponse) {
+    option (google.api.http) = {
+      get: "/user/profile"
+    };
+  }
+}
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message UserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 4;
+}
