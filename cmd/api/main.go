@@ -1,7 +1,6 @@
 package main
 
 import (
-	"titiktopup-core/internal/clients"
 	"titiktopup-core/internal/config"
 	"titiktopup-core/internal/handler"
 	"titiktopup-core/internal/repository"
@@ -13,9 +12,6 @@ import (
 
 func main() {
 	db := config.InitDB()
-
-	allClients := clients.InitClients()
-	defer allClients.CloseAll()
 
 	repo := repository.NewTransactionRepository(db)
 	topupHandler := handler.NewTopupHandler(repo)
