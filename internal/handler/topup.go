@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"titiktopup-core/internal/domain"
 	"titiktopup-core/pb"
 
@@ -11,15 +12,32 @@ import (
 type TopupHandler struct {
 	pb.UnimplementedTopupServiceServer
 	repo domain.TransactionRepository
+	log  *Log
 }
 
-func NewTopupHandler(r domain.TransactionRepository) *TopupHandler {
-	return &TopupHandler{repo: r}
+type TopupHandlerDeps struct {
+	Repo   domain.TransactionRepository
+	Logger *slog.Logger
+}
+
+func NewTopupHandler(deps TopupHandlerDeps) *TopupHandler {
+	return &TopupHandler{
+		repo: deps.Repo,
+		log:  NewLog(deps.Logger, context.Background()),
+	}
 }
 
 func (h *TopupHandler) GetMenu(ctx context.Context, req *emptypb.Empty) (*pb.MenuResponse, error) {
+	log := h.log.WithContext(ctx)
+	logKey := "GetMenu"
+	log.Info(logKey, "GetMenu called", NewLogTags(nil).
+		WithHandler("TopupHandler"))
+
 	categories, err := h.repo.GetCategories()
 	if err != nil {
+		log.Error(logKey, "GetMenu failed to get categories", NewLogTags(nil).
+			WithHandler("TopupHandler").
+			WithError(err))
 		return nil, err
 	}
 
@@ -28,6 +46,9 @@ func (h *TopupHandler) GetMenu(ctx context.Context, req *emptypb.Empty) (*pb.Men
 		pbCategories = append(pbCategories, domain.ToProtoCategory(c))
 	}
 
+	log.Info(logKey, "GetMenu success", NewLogTags(nil).
+		WithHandler("TopupHandler").
+		WithCategoriesCount(len(pbCategories)))
 	return &pb.MenuResponse{Categories: pbCategories}, nil
 }
 

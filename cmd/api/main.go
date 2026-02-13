@@ -14,8 +14,13 @@ func main() {
 	db := config.InitDB()
 
 	repo := repository.NewTransactionRepository(db)
-	topupHandler := handler.NewTopupHandler(repo)
-	userHandler := handler.NewUserHandler()
+	topupHandler := handler.NewTopupHandler(handler.TopupHandlerDeps{
+		Repo:   repo,
+		Logger: server.Logger,
+	})
+	userHandler := handler.NewUserHandler(handler.UserHandlerDeps{
+		Logger: server.Logger,
+	})
 
 	grpcRegs := []server.GRPCRegistrar{
 		func(s grpc.ServiceRegistrar) { pb.RegisterTopupServiceServer(s, topupHandler) },

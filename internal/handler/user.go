@@ -2,16 +2,24 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 
 	"titiktopup-core/pb"
 )
 
 type UserHandler struct {
 	pb.UnimplementedUserServiceServer
+	logger *slog.Logger
 }
 
-func NewUserHandler() *UserHandler {
-	return &UserHandler{}
+type UserHandlerDeps struct {
+	Logger *slog.Logger
+}
+
+func NewUserHandler(deps UserHandlerDeps) *UserHandler {
+	return &UserHandler{
+		logger: deps.Logger,
+	}
 }
 
 func (h *UserHandler) GetProfile(ctx context.Context, req *pb.GetProfileRequest) (*pb.UserResponse, error) {
